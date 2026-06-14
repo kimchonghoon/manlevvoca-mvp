@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>만렙보카 MVP</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.31.0/tabler-icons.min.css" />
+<style>
+  :root{
+    --bg:#ece9e1; --primary:#ffffff; --secondary:#f5f4ef;
+    --tp:#1c1c1a; --ts:#6b6a64; --tt:#9a9992;
+    --success:#0f6e56; --danger:#a32d2d;
+    --bt:rgba(0,0,0,0.12); --bs:rgba(0,0,0,0.22);
+    --pp:#534AB7; --pbg:#EEEDFE; --ptx:#3C3489;
+  }
+  *{ box-sizing:border-box; }
+  body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif; background:var(--bg); color:var(--tp); margin:0; }
+  .wrap{ max-width:720px; margin:0 auto; padding:0 14px 92px; }
+  header{ position:sticky; top:0; background:var(--bg); padding:16px 0 10px; z-index:5; }
+  .brand{ font-size:20px; font-weight:500; color:var(--ptx); }
+  .brand small{ font-size:11px; color:var(--ts); font-weight:400; }
+  input,button,textarea{ font-family:inherit; color:inherit; }
+  button{ cursor:pointer; border:0.5px solid var(--bs); background:var(--primary); border-radius:8px; transition:transform .05s; }
+  button:hover{ background:var(--secondary); } button:active{ transform:scale(.97); }
+  .btn-p{ background:var(--pp); color:#fff; border-color:var(--pp); } .btn-p:hover{ background:#463db0; }
+  .hd{ font-size:12px; font-weight:500; text-align:center; padding:7px 4px; }
+  .cl{ min-height:70px; padding:8px 7px; border-right:0.5px solid var(--bt); border-top:0.5px solid var(--bt); font-size:12px; line-height:1.34; }
+  .cl b{ font-weight:500; } .cl .ko{ color:var(--ts); font-size:11px; }
+  .wd.hl b{ color:var(--ptx); } .wd.hl{ background:var(--pbg); border-radius:4px; padding:0 3px; }
+  .spk{ cursor:pointer; color:var(--tt); font-size:12px; margin-left:2px; }
+  .navchip{ display:inline-block; font-size:12px; padding:3px 9px; margin:0 3px 4px 0; border-radius:999px; border:0.5px solid var(--bs); background:var(--primary); cursor:pointer; }
+  .navchip.has{ background:#E1F5EE; color:#085041; border-color:#9FE1CB; } .navchip.has::after{ content:" ↗"; font-size:10px; }
+  .badge{ font-size:11px; padding:2px 8px; border-radius:999px; }
+  .toast{ position:fixed; bottom:82px; left:50%; transform:translateX(-50%); background:var(--ptx); color:#fff; padding:9px 16px; border-radius:999px; font-size:13px; opacity:0; transition:opacity .2s; pointer-events:none; z-index:20; }
+  .toast.show{ opacity:1; }
+  nav{ position:fixed; bottom:0; left:0; right:0; background:var(--primary); border-top:0.5px solid var(--bt); display:flex; z-index:10; }
+  nav button{ flex:1; border:none; background:none; border-radius:0; padding:10px 0; font-size:12px; color:var(--ts); display:flex; flex-direction:column; align-items:center; gap:2px; }
+  nav button.on{ color:var(--pp); } nav button i{ font-size:21px; }
+  .opt{ display:block; width:100%; text-align:left; padding:12px 14px; margin-bottom:8px; font-size:15px; }
+  .opt.ok{ background:#E1F5EE; border-color:#1D9E75; color:#085041; }
+  .opt.no{ background:#FCEBEB; border-color:#E24B4A; color:#A32D2D; }
+  .bar{ height:8px; background:var(--bt); border-radius:999px; overflow:hidden; } .bar>div{ height:100%; }
+  .card{ background:var(--primary); border:0.5px solid var(--bt); border-radius:12px; padding:14px; margin-bottom:12px; }
+  .muted{ color:var(--ts); font-size:13px; }
+  .hide{ display:none; } h2{ font-size:17px; font-weight:500; margin:4px 0 12px; }
+  textarea{ width:100%; border:0.5px solid var(--bs); border-radius:8px; padding:9px; font-size:13px; resize:vertical; }
+  .gbtn{ font-size:12px; padding:6px 11px; }
+  .boxwrap{ border-radius:8px; overflow:hidden; }
+  .bgrid{ display:grid; grid-template-columns:repeat(6,1fr); }
+  @media (max-width:560px){
+    .wrap{ padding:0 10px 92px; }
+    .boxwrap{ overflow-x:auto; -webkit-overflow-scrolling:touch; }
+    .bgrid{ min-width:540px; }
+    .cl{ min-height:62px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="brand">만렙보카 <small>· 검색 → 박스 → 그림 → 테스트 → 망각곡선</small></div></header>
+
+  <!-- 검색 -->
+  <section id="v-search">
+    <div class="card">
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1; display:flex; align-items:center; gap:8px; border:0.5px solid var(--bs); border-radius:999px; padding:0 14px; height:46px;">
+          <i class="ti ti-search" style="font-size:19px; color:var(--tt);"></i>
+          <input id="q" value="respect" placeholder="단어 입력 (respect, create, compete…)" style="flex:1; border:none; outline:none; background:transparent; font-size:15px; height:44px;" />
+        </div>
+        <button class="btn-p" style="height:46px; padding:0 18px; border-radius:999px;" onclick="doSearch()">검색</button>
+      </div>
+      <div style="margin-top:9px; display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button style="font-size:12px; padding:5px 11px; border-radius:8px;" onclick="photoDemo()"><i class="ti ti-camera"></i> 사진 올리기</button>
+        <button style="font-size:12px; padding:5px 11px; border-radius:8px;" onclick="togglePaste()"><i class="ti ti-clipboard-list"></i> 여러 단어 붙여넣기</button>
+        <span class="muted" style="font-size:11px;">예시:</span>
+        <span id="hints"></span>
+      </div>
+      <div id="pasteBox" class="hide" style="margin-top:8px;">
+        <textarea id="pasteText" rows="2" placeholder="create, decide, compete 처럼 여러 개"></textarea>
+        <button class="btn-p" style="margin-top:6px; padding:7px 13px; font-size:13px;" onclick="addMany()">전부 담기</button>
+        <span id="pasteMsg" class="muted" style="margin-left:8px;"></span>
+      </div>
+    </div>
+
+    <!-- 박스 카드 -->
+    <div id="card" class="card" style="transition:box-shadow .25s;">
+      <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:6px;">
+        <button id="back" class="hide" onclick="goBack()" title="이전 단어로" style="border:none; background:none; padding:0 4px 0 0; font-size:19px; color:var(--pp); cursor:pointer; align-self:center;"><i class="ti ti-arrow-left"></i></button>
+        <span id="root" style="font-size:19px; font-weight:500;"></span>
+        <span id="rootko" style="font-size:13px; color:var(--ts);"></span>
+        <span id="rootbadge" class="badge" style="margin-left:auto; background:var(--pbg); color:var(--ptx);"></span>
+      </div>
+      <div class="boxwrap" style="border:0.5px solid var(--bs);">
+        <div class="bgrid">
+          <div class="hd" style="background:var(--pbg); color:var(--ptx);">동사</div>
+          <div class="hd" style="background:var(--pbg); color:var(--ptx);">명사</div>
+          <div class="hd" style="background:var(--pbg); color:var(--ptx);">형용사</div>
+          <div class="hd" style="background:var(--pbg); color:var(--ptx);">부사</div>
+          <div class="hd" style="background:#FAECE7; color:#993C1D;">반의어</div>
+          <div class="hd" style="background:#E1F5EE; color:#085041;">동의어</div>
+        </div>
+        <div class="bgrid">
+          <div class="cl" id="c-v"></div><div class="cl" id="c-n"></div><div class="cl" id="c-a"></div>
+          <div class="cl" id="c-d"></div><div class="cl" id="c-ant" style="background:#FCF4F1;"></div>
+          <div class="cl" id="c-syn" style="background:#F1F9F5; border-right:none;"></div>
+        </div>
+        <div style="display:flex; gap:8px; padding:9px 12px; border-top:0.5px solid var(--bs);">
+          <span class="badge" style="background:#FAEEDA; color:#854F0B; height:fit-content;">예문</span>
+          <span id="ex" style="font-size:13px; line-height:1.5;"></span>
+        </div>
+      </div>
+      <p style="font-size:11px; color:#085041; text-align:center; margin:8px 0 0;"><i class="ti ti-click"></i> 동의어·반의어(↗)를 누르면 그 단어로 박스가 새로 생겨요</p>
+      <div style="display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap;">
+        <button class="btn-p" onclick="toggleImg()"><i class="ti ti-photo"></i> 그림으로 보기</button>
+        <button onclick="speak(cur)"><i class="ti ti-volume"></i> 음성으로 듣기</button>
+        <button id="bSave" onclick="addWord(cur)"></button>
+        <button onclick="startTest('one',cur)"><i class="ti ti-checkbox"></i> 테스트</button>
+        <button onclick="toggleGames()"><i class="ti ti-device-gamepad-2"></i> 워드게임 ▸</button>
+      </div>
+      <div id="panel" style="margin-top:10px;"></div>
+      <div id="games" style="margin-top:10px;"></div>
+    </div>
+  </section>
+
+  <!-- 내 단어 / 진도 -->
+  <section id="v-my" class="hide">
+    <h2>내 단어 · 진도</h2>
+    <div class="card">
+      <div style="display:flex; align-items:center; gap:12px;">
+        <div style="width:46px; height:46px; border-radius:50%; background:var(--pbg); display:flex; align-items:center; justify-content:center;"><i class="ti ti-star" style="font-size:24px; color:var(--pp);"></i></div>
+        <div><div style="font-size:13px; font-weight:500; color:var(--ptx);">만렙이 Lv.<span id="lv">1</span></div><div class="muted" style="font-size:11px;"><i class="ti ti-flame" style="color:#BA7517;"></i> <span id="streak">1</span>일 연속</div></div>
+        <button class="btn-p" style="margin-left:auto; padding:10px 16px;" onclick="startTest('due')"><i class="ti ti-refresh"></i> 복습 시작</button>
+      </div>
+      <div style="display:flex; gap:8px; margin-top:12px;">
+        <div style="flex:1; background:var(--secondary); border-radius:8px; padding:9px; text-align:center;"><div class="muted" style="font-size:10px;">담은 단어</div><div id="myCount" style="font-size:20px; font-weight:500;">0</div></div>
+        <div style="flex:1; background:var(--secondary); border-radius:8px; padding:9px; text-align:center;"><div class="muted" style="font-size:10px;">마스터</div><div id="myMaster" style="font-size:20px; font-weight:500; color:#085041;">0</div></div>
+        <div style="flex:1; background:var(--secondary); border-radius:8px; padding:9px; text-align:center;"><div class="muted" style="font-size:10px;">복습 필요</div><div id="myDue" style="font-size:20px; font-weight:500; color:#A32D2D;">0</div></div>
+      </div>
+    </div>
+    <div id="myList"></div>
+  </section>
+
+  <!-- 테스트 -->
+  <section id="v-test" class="hide"><h2>테스트</h2><div class="card" id="testCard"></div></section>
+</div>
+
+<div id="toast" class="toast"></div>
+<nav>
+  <button id="nav-search" class="on" onclick="showView('search')"><i class="ti ti-search"></i>검색</button>
+  <button id="nav-my" onclick="showView('my')"><i class="ti ti-flame"></i><span>내 단어 <b id="navCount">0</b></span></button>
+</nav>
+
+<script>
+// ===== 그림(어원·의미 장면) =====
+const SCENES={
+ respect:['우러러 다시 보는 장면 (re+spect)','<svg viewBox="0 0 120 100" width="150" height="118"><rect x="60" y="74" width="46" height="14" rx="2" fill="#B4B2A9"/><rect x="66" y="64" width="34" height="10" rx="2" fill="#D3D1C7"/><path d="M83 16 l2.4 5.6 h6 l-4.8 3.8 1.9 5.9 -5.5 -3.7 -5.5 3.7 1.9 -5.9 -4.8 -3.8 h6 z" fill="#EF9F27"/><circle cx="83" cy="40" r="9" fill="#7F77DD"/><path d="M71 64 q12 -18 24 0 z" fill="#7F77DD"/><circle cx="24" cy="60" r="7" fill="#5F5E5A"/><path d="M15 86 q9 -15 18 0 z" fill="#5F5E5A"/><path d="M33 55 L65 41" stroke="#1D9E75" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round"/><path d="M65 41 l-7 0.5 m7 -0.5 l-1.5 6" stroke="#1D9E75" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>'],
+ inspect:['안을 들여다보는 장면 (in+spect)','<svg viewBox="0 0 120 100" width="150" height="118"><rect x="16" y="44" width="52" height="44" rx="3" fill="#FAC775"/><line x1="24" y1="56" x2="56" y2="56" stroke="#854F0B" stroke-width="3" opacity=".45"/><line x1="24" y1="66" x2="56" y2="66" stroke="#854F0B" stroke-width="3" opacity=".45"/><line x1="84" y1="58" x2="100" y2="78" stroke="#3C3489" stroke-width="7" stroke-linecap="round"/><circle cx="72" cy="44" r="22" fill="#EEEDFE" stroke="#534AB7" stroke-width="5"/><ellipse cx="72" cy="44" rx="11" ry="6" fill="#fff"/><circle cx="72" cy="44" r="4" fill="#26215C"/></svg>'],
+ prospect:['앞날을 내다보는 장면 (pro+spect)','<svg viewBox="0 0 120 100" width="150" height="118"><path d="M0 88 Q40 70 72 80 T120 78 V100 H0 Z" fill="#9FE1CB"/><circle cx="100" cy="50" r="12" fill="#FAC775"/><circle cx="34" cy="52" r="8" fill="#5F5E5A"/><path d="M24 82 q10 -18 20 0 z" fill="#5F5E5A"/><path d="M40 49 q6 -3 10 1" stroke="#5F5E5A" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M46 51 L84 51" stroke="#BA7517" stroke-width="2.5" stroke-dasharray="4 3" stroke-linecap="round"/><path d="M84 51 l-6 -3 m6 3 l-6 3" stroke="#BA7517" stroke-width="2.5" fill="none" stroke-linecap="round"/></svg>'],
+ create:['무에서 새로 쌓아 만드는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="48" y="56" width="44" height="20" rx="3" fill="#7F77DD"/><rect x="54" y="38" width="32" height="18" rx="3" fill="#AFA9EC"/><path d="M70 14 l3 7 h7 l-6 5 2 8 -6 -5 -6 5 2 -8 -6 -5 h7 z" fill="#EF9F27"/></svg>'],
+ produce:['공장이 제품을 찍어내는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="20" y="44" width="50" height="36" fill="#B4B2A9"/><rect x="30" y="30" width="9" height="14" fill="#888780"/><rect x="46" y="24" width="9" height="20" fill="#888780"/><line x1="72" y1="80" x2="124" y2="80" stroke="#5F5E5A" stroke-width="3"/><rect x="80" y="66" width="14" height="12" fill="#EF9F27"/><rect x="102" y="66" width="14" height="12" fill="#FAC775"/></svg>'],
+ destroy:['모든 걸 부수는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="40" y="50" width="20" height="30" fill="#B4B2A9" transform="rotate(-8 50 65)"/><rect x="64" y="44" width="20" height="36" fill="#D3D1C7" transform="rotate(6 74 62)"/><path d="M30 40 l16 14 M96 30 l-14 16 M70 24 v14" stroke="#D85A30" stroke-width="3" stroke-linecap="round"/></svg>'],
+ decide:['갈림길에서 길을 정하는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><path d="M40 82 L70 50" stroke="#888780" stroke-width="4" fill="none"/><path d="M70 50 L102 28" stroke="#1D9E75" stroke-width="4" fill="none"/><path d="M70 50 L102 72" stroke="#D3D1C7" stroke-width="4" fill="none"/><circle cx="70" cy="50" r="6" fill="#534AB7"/><path d="M95 24 l8 4 -4 8" fill="none" stroke="#1D9E75" stroke-width="3" stroke-linecap="round"/></svg>'],
+ inform:['널리 알리는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="28" y="44" width="12" height="12" fill="#185FA5"/><path d="M40 44 L72 34 V66 L40 56 Z" fill="#378ADD"/><path d="M80 40 q10 10 0 20" fill="none" stroke="#85B7EB" stroke-width="3"/><path d="M88 33 q16 17 0 34" fill="none" stroke="#85B7EB" stroke-width="3"/></svg>'],
+ compete:['결승선을 두고 겨루는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><circle cx="30" cy="42" r="7" fill="#534AB7"/><path d="M30 49 l-3 16 m3 -16 l5 14 m-5 -14 l9 6" stroke="#534AB7" stroke-width="3" fill="none" stroke-linecap="round"/><circle cx="58" cy="42" r="7" fill="#D85A30"/><path d="M58 49 l-3 16 m3 -16 l5 14 m-5 -14 l9 6" stroke="#D85A30" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M104 22 V78" stroke="#5F5E5A" stroke-width="3"/><path d="M104 24 h20 v12 h-20 z" fill="#EF9F27"/></svg>'],
+ explain:['칠판 앞에서 풀어 설명하는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="60" y="26" width="56" height="40" rx="3" fill="#E1F5EE" stroke="#1D9E75" stroke-width="2"/><line x1="68" y1="38" x2="104" y2="38" stroke="#0F6E56" stroke-width="2"/><line x1="68" y1="48" x2="96" y2="48" stroke="#0F6E56" stroke-width="2"/><circle cx="34" cy="40" r="7" fill="#5F5E5A"/><path d="M34 47 l0 18 m0 -12 l18 -8" stroke="#5F5E5A" stroke-width="3" fill="none" stroke-linecap="round"/></svg>'],
+ succeed:['계단 끝에 올라 깃발 꽂는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><rect x="28" y="70" width="24" height="10" fill="#D3D1C7"/><rect x="52" y="58" width="24" height="22" fill="#B4B2A9"/><rect x="76" y="42" width="24" height="38" fill="#888780"/><circle cx="88" cy="30" r="7" fill="#534AB7"/><path d="M98 16 V34" stroke="#5F5E5A" stroke-width="2"/><path d="M98 16 h14 v9 h-14 z" fill="#EF9F27"/></svg>'],
+ act:['곧장 움직여 행동하는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><circle cx="74" cy="34" r="8" fill="#534AB7"/><path d="M74 42 l9 14 m-9 -14 l-8 12 m9 -2 l11 8 m-11 -8 l-13 4" stroke="#534AB7" stroke-width="4" fill="none" stroke-linecap="round"/><path d="M30 40 h14 M26 52 h12 M30 64 h14" stroke="#AFA9EC" stroke-width="3" stroke-linecap="round"/></svg>'],
+ nature:['있는 그대로의 자연 장면','<svg viewBox="0 0 140 100" width="150" height="106"><circle cx="106" cy="28" r="12" fill="#FAC775"/><rect x="64" y="58" width="8" height="26" fill="#854F0B"/><circle cx="52" cy="54" r="12" fill="#97C459"/><circle cx="84" cy="54" r="12" fill="#97C459"/><circle cx="68" cy="46" r="18" fill="#639922"/></svg>'],
+ differ:['서로 다른 두 모양 장면','<svg viewBox="0 0 140 100" width="150" height="106"><circle cx="44" cy="50" r="19" fill="#7F77DD"/><rect x="80" y="32" width="36" height="36" fill="#D85A30"/><text x="65" y="57" font-size="20" fill="#5F5E5A">≠</text></svg>'],
+ depend:['줄에 매달려 기대는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><line x1="28" y1="22" x2="112" y2="22" stroke="#5F5E5A" stroke-width="3"/><line x1="70" y1="22" x2="70" y2="48" stroke="#888780" stroke-width="2"/><circle cx="70" cy="62" r="14" fill="#534AB7"/></svg>'],
+ imagine:['머릿속에 그림을 떠올리는 장면','<svg viewBox="0 0 140 100" width="150" height="106"><circle cx="52" cy="58" r="20" fill="#AFA9EC"/><circle cx="84" cy="36" r="4" fill="#CECBF6"/><circle cx="94" cy="28" r="6" fill="#CECBF6"/><circle cx="110" cy="20" r="10" fill="#EEEDFE" stroke="#EF9F27" stroke-width="2"/></svg>']
+};
+
+// ===== 단어 DB (word family) — 동의/반의는 클릭 네비게이션 =====
+const DB={
+ respect:{ko:'존경',root:'spect',rootKo:'보다',grade:'중2',star:4,v:[['respect','존경하다']],n:[['respect','존경']],a:[['respectful','공손한']],d:[['respectfully','공손하게']],ant:['despise'],syn:['admire','honor'],ex:'We <b>respect</b> our teachers. — 우리는 선생님을 존경한다.',scene:'respect',morph:'re 다시 + spect 보다'},
+ admire:{ko:'감탄·존경',root:'mir',rootKo:'놀라다',grade:'중3',star:3,v:[['admire','감탄하다']],n:[['admiration','감탄']],a:[['admirable','훌륭한']],d:[['admirably','훌륭하게']],ant:['scorn'],syn:['respect','adore'],ex:'I <b>admire</b> her courage. — 나는 그녀의 용기에 감탄한다.',scene:'respect'},
+ honor:{ko:'명예·존경',root:'honor',rootKo:'명예',grade:'중3',star:3,v:[['honor','존경하다']],n:[['honor','명예']],a:[['honorable','명예로운']],d:[['honorably','명예롭게']],ant:['shame'],syn:['respect','praise'],ex:'We <b>honor</b> the heroes. — 우리는 영웅들을 기린다.',scene:'respect'},
+ inspect:{ko:'검사',root:'spect',rootKo:'보다',grade:'중3',star:3,v:[['inspect','검사하다']],n:[['inspection','검사'],['inspector','검사관']],a:[],d:[],ant:['ignore'],syn:['examine','check'],ex:'They <b>inspect</b> the car. — 그들은 차를 검사한다.',scene:'inspect',morph:'in 안 + spect 보다'},
+ prospect:{ko:'전망·가망',root:'spect',rootKo:'보다',grade:'고1',star:3,v:[],n:[['prospect','전망']],a:[['prospective','장래의']],d:[],ant:[],syn:['outlook'],ex:'The <b>prospect</b> is bright. — 전망이 밝다.',scene:'prospect',morph:'pro 앞 + spect 보다'},
+ create:{ko:'창조',root:'creat',rootKo:'만들다',grade:'중2',star:4,v:[['create','창조하다']],n:[['creation','창조'],['creativity','창의성']],a:[['creative','창의적인']],d:[['creatively','창의적으로']],ant:['destroy'],syn:['produce','invent'],ex:'Artists <b>create</b> new worlds. — 예술가는 새 세계를 창조한다.',scene:'create'},
+ produce:{ko:'생산',root:'duc',rootKo:'이끌다',grade:'중2',star:4,v:[['produce','생산하다']],n:[['production','생산'],['product','제품']],a:[['productive','생산적인']],d:[['productively','생산적으로']],ant:['consume'],syn:['create','manufacture'],ex:'This factory <b>produces</b> cars. — 이 공장은 차를 생산한다.',scene:'produce'},
+ destroy:{ko:'파괴',root:'stroy',rootKo:'쌓다',grade:'중2',star:4,v:[['destroy','파괴하다']],n:[['destruction','파괴']],a:[['destructive','파괴적인']],d:[['destructively','파괴적으로']],ant:['create'],syn:['ruin','wreck'],ex:'Floods <b>destroy</b> homes. — 홍수가 집을 파괴한다.',scene:'destroy'},
+ decide:{ko:'결정',root:'cid',rootKo:'자르다',grade:'중2',star:4,v:[['decide','결정하다']],n:[['decision','결정']],a:[['decisive','결정적인']],d:[['decisively','단호하게']],ant:['hesitate'],syn:['determine','choose'],ex:'We must <b>decide</b> today. — 우리는 오늘 결정해야 한다.',scene:'decide'},
+ inform:{ko:'알리다',root:'form',rootKo:'형태',grade:'중2',star:4,v:[['inform','알리다']],n:[['information','정보']],a:[['informative','유익한']],d:[],ant:['conceal'],syn:['notify','tell'],ex:'Please <b>inform</b> me. — 내게 알려줘.',scene:'inform'},
+ compete:{ko:'경쟁',root:'pet',rootKo:'추구',grade:'중3',star:4,v:[['compete','경쟁하다']],n:[['competition','경쟁'],['competitor','경쟁자']],a:[['competitive','경쟁적인']],d:[['competitively','경쟁적으로']],ant:['cooperate'],syn:['rival','contend'],ex:'They <b>compete</b> for the prize. — 그들은 상을 두고 경쟁한다.',scene:'compete'},
+ explain:{ko:'설명',root:'plain',rootKo:'분명',grade:'중2',star:4,v:[['explain','설명하다']],n:[['explanation','설명']],a:[['explanatory','설명적인']],d:[],ant:['confuse'],syn:['clarify','describe'],ex:'Can you <b>explain</b> this? — 이것을 설명해 줄래?',scene:'explain'},
+ succeed:{ko:'성공',root:'cess',rootKo:'가다',grade:'중3',star:4,v:[['succeed','성공하다']],n:[['success','성공']],a:[['successful','성공적인']],d:[['successfully','성공적으로']],ant:['fail'],syn:['achieve','win'],ex:'She will <b>succeed</b>. — 그녀는 성공할 것이다.',scene:'succeed'},
+ act:{ko:'행동',root:'act',rootKo:'행하다',grade:'중1',star:5,v:[['act','행동하다']],n:[['action','행동'],['activity','활동']],a:[['active','활동적인']],d:[['actively','적극적으로']],ant:['rest'],syn:['do','perform'],ex:'We must <b>act</b> now. — 우리는 지금 행동해야 한다.',scene:'act'},
+ nature:{ko:'자연·본성',root:'nat',rootKo:'태어나다',grade:'중1',star:5,v:[],n:[['nature','자연·본성']],a:[['natural','자연적인']],d:[['naturally','자연스럽게']],ant:['artificial'],syn:['environment'],ex:'I love <b>nature</b>. — 나는 자연을 사랑한다.',scene:'nature'},
+ differ:{ko:'다르다',root:'fer',rootKo:'나르다',grade:'중2',star:4,v:[['differ','다르다']],n:[['difference','차이']],a:[['different','다른']],d:[['differently','다르게']],ant:['resemble'],syn:['vary'],ex:'Our views <b>differ</b>. — 우리 견해는 다르다.',scene:'differ'},
+ depend:{ko:'의존',root:'pend',rootKo:'매달다',grade:'중2',star:4,v:[['depend','의존하다']],n:[['dependence','의존']],a:[['dependent','의존적인']],d:[],ant:['independent'],syn:['rely'],ex:'Children <b>depend</b> on parents. — 아이들은 부모에게 의존한다.',scene:'depend'},
+ imagine:{ko:'상상',root:'imag',rootKo:'그리다',grade:'중2',star:4,v:[['imagine','상상하다']],n:[['imagination','상상력']],a:[['imaginative','상상력 풍부한']],d:[['imaginatively','상상력 있게']],ant:[],syn:['envision','picture'],ex:'<b>Imagine</b> a better world. — 더 나은 세상을 상상해 봐.',scene:'imagine'}
+};
+const MEAN={}; for(const w in DB) MEAN[w]=DB[w].ko;
+const ALL=Object.keys(DB);
+
+// ===== 상태 =====
+const LS='manlevvoca_v2';
+let ST=JSON.parse(localStorage.getItem(LS)||'{}');
+let MY=ST.my||[];           // [{w,strength,last}]
+let STREAK=ST.streak||{n:1,day:''};
+let cur='respect';
+function persist(){ localStorage.setItem(LS,JSON.stringify({my:MY,streak:STREAK})); refreshCounts(); }
+function findMy(w){ return MY.find(m=>m.w===w); }
+function strengthOf(m){ return Math.max(0,Math.round(m.strength-(Date.now()-m.last)/86400000*12)); }
+
+// ===== 유틸 =====
+function $(id){ return document.getElementById(id); }
+function toast(m){ const t=$('toast'); t.textContent=m; t.classList.add('show'); clearTimeout(t._t); t._t=setTimeout(()=>t.classList.remove('show'),1500); }
+function speak(w){ try{ const u=new SpeechSynthesisUtterance(w); u.lang='en-US'; speechSynthesis.speak(u); }catch(e){} }
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+
+// ===== 박스 렌더 =====
+function cellForms(forms){ if(!forms||!forms.length) return '<span style="color:var(--tt);font-size:11px;">— 없음</span>';
+  return forms.map(([w,ko])=>`<span class="wd ${w===cur?'hl':''}"><b>${w}</b><i class="ti ti-volume spk" onclick="speak('${w}')"></i><br><span class="ko">${ko}</span></span>`).join('<br>'); }
+function chips(arr){ if(!arr||!arr.length) return '<span style="color:var(--tt);font-size:11px;">—</span>';
+  return arr.map(w=>`<button class="navchip ${DB[w]?'has':''}" onclick="renderBox('${w}',true)">${w}</button>`).join(''); }
+let HIST=[];
+function updateBack(){ const b=$('back'); if(b) b.classList.toggle('hide', HIST.length===0); }
+function goBack(){ if(HIST.length){ renderBox(HIST.pop(), false, true); } }
+function renderBox(w,flash,fromHist){
+  w=w.toLowerCase();
+  if(!fromHist && cur && cur!==w) HIST.push(cur);
+  const d=DB[w];
+  if(!d){ $('root').textContent=w; $('rootko').textContent=''; $('rootbadge').textContent='';
+    ['c-v','c-n','c-a','c-d','c-ant','c-syn'].forEach(id=>$(id).innerHTML='<span style="color:var(--tt);font-size:11px;">…</span>');
+    $('ex').innerHTML='<span class="muted">아직 시드에 없는 단어예요. 실제 제품에선 AI가 박스를 생성→검수 대기.</span>';
+    $('panel').innerHTML=''; $('games').innerHTML=''; cur=w; updateSaveBtn(); updateBack(); return; }
+  cur=w; $('q').value=w; $('panel').innerHTML=''; $('games').innerHTML='';
+  $('root').textContent=w; $('rootko').textContent='· 어근 '+d.root+'('+d.rootKo+')';
+  $('rootbadge').textContent=d.grade+' · '+'★'.repeat(d.star)+'☆'.repeat(5-d.star);
+  $('c-v').innerHTML=cellForms(d.v); $('c-n').innerHTML=cellForms(d.n); $('c-a').innerHTML=cellForms(d.a); $('c-d').innerHTML=cellForms(d.d);
+  $('c-ant').innerHTML=chips(d.ant); $('c-syn').innerHTML=chips(d.syn); $('ex').innerHTML=d.ex;
+  updateSaveBtn(); updateBack();
+  if(flash){ const c=$('card'); c.style.boxShadow='0 0 0 3px #9FE1CB'; setTimeout(()=>c.style.boxShadow='none',280); }
+}
+function updateSaveBtn(){ const b=$('bSave'); const s=!!findMy(cur);
+  b.className=s?'':'btn-p'; b.innerHTML=s?'<i class="ti ti-check"></i> 담김':'<i class="ti ti-bookmark"></i> 담기(저장)'; }
+
+// ===== 검색 / 업로드 =====
+function doSearch(){ const raw=($('q').value||'').trim().toLowerCase(); if(raw) renderBox(raw); }
+function togglePaste(){ $('pasteBox').classList.toggle('hide'); }
+function photoDemo(){ toast('데모: 사진 OCR이 들어갈 자리예요. 지금은 텍스트로 추가해 보세요'); $('pasteBox').classList.remove('hide'); }
+function addMany(){ const t=($('pasteText').value||'').toLowerCase(); const words=t.split(/[\s,;\n]+/).map(s=>s.trim()).filter(Boolean);
+  let add=0,miss=0; for(const w of words){ if(DB[w]){ if(!findMy(w)){ MY.push({w,strength:50,last:Date.now()}); add++; } } else miss++; }
+  persist(); $('pasteMsg').innerHTML=`<span style="color:var(--success)">${add}개 담음</span>`+(miss?` · <span class="muted">미인식 ${miss}</span>`:''); toast(add+'개 담았어요'); }
+
+// ===== 그림 / 음성 / 게임 토글 =====
+function toggleImg(){ const p=$('panel'); if(p.innerHTML){ p.innerHTML=''; return; }
+  const d=DB[cur]; if(!d){ p.innerHTML='<div class="card muted" style="margin:0;">이미지 준비 중 (AI 생성 대기)</div>'; return; }
+  // 박스 안 단어들 각각 = 같은 어근 + 동의/반의(DB에 있는 것)
+  const ids=[...new Set([cur,...ALL.filter(w=>DB[w].root===d.root),...d.syn.filter(w=>DB[w]),...d.ant.filter(w=>DB[w])])];
+  p.innerHTML='<div style="font-size:11px; color:var(--ts); margin-bottom:8px; text-align:center;">박스 안 단어들을 각각 어원 장면으로 — 누르면 그 단어로 이동</div>'
+   +'<div style="display:flex; gap:10px; flex-wrap:wrap; justify-content:center;">'+ids.map(w=>{ const e=DB[w],s=SCENES[e.scene];
+    return `<div style="width:200px; background:var(--primary); border:0.5px solid var(--bt); border-radius:12px; overflow:hidden; cursor:pointer; ${w===cur?'box-shadow:0 0 0 2px #7F77DD;':''}" onclick="renderBox('${w}',true)">
+      <div style="background:var(--secondary); padding:6px; min-height:118px; display:flex; align-items:center; justify-content:center;">${s?s[1]:'<span style=\"color:var(--tt); font-size:11px;\">AI 이미지 자리</span>'}</div>
+      <div style="padding:10px 12px;"><div style="display:flex; align-items:baseline; gap:6px;"><span style="font-size:16px; font-weight:500;">${w}</span><span style="font-size:12px; color:var(--ts);">${e.ko}</span><i class="ti ti-volume spk" style="font-size:13px; margin-left:auto;" onclick="event.stopPropagation();speak('${w}')"></i></div>
+      ${e.morph?`<div style="margin-top:6px; font-size:11px; color:#185FA5; background:#E6F1FB; display:inline-block; padding:2px 7px; border-radius:4px;">${e.morph}</div>`:`<div style="margin-top:6px; font-size:11px; color:var(--ts);">어근 ${e.root}(${e.rootKo})</div>`}
+      <div style="margin-top:6px; font-size:11px; color:var(--tt);">${s?'장면 · '+s[0]:'장면 준비 중'}</div></div></div>`; }).join('')+'</div>'; }
+function toggleGames(){ const g=$('games'); if(g.innerHTML){ g.innerHTML=''; return; }
+  g.innerHTML='<div class="card" style="margin:0;"><div class="muted" style="font-size:12px; margin-bottom:8px;">내 단어로 → 게임 골라 암기</div><div style="display:flex; gap:6px; flex-wrap:wrap;" id="gb"></div><div id="gout" style="margin-top:8px;"></div></div>';
+  ['스펠링 채우기','블록 채우기','동의어 연결','이상형 월드컵','카드 매칭'].forEach((n,i)=>{ const b=document.createElement('button'); b.className='gbtn'; b.textContent=n;
+    b.onclick=()=> i===0?spellGame():$('gout').innerHTML='<span class="muted" style="font-size:12px;">'+n+' — 곧 추가됩니다</span>'; $('gb').appendChild(b); }); }
+function spellGame(){ $('gout').innerHTML=`<div style="font-size:12px; margin-bottom:6px;">"${DB[cur].ko}" 의 영어 철자를 입력</div>
+  <div style="display:flex; gap:6px;"><input id="sg" style="flex:1; border:0.5px solid var(--bs); border-radius:8px; height:36px; padding:0 10px; font-size:14px;" placeholder="${cur[0]}____"/>
+  <button class="btn-p" style="padding:0 12px;" onclick="spellChk()">확인</button></div><div id="sgr" style="margin-top:6px; font-size:12px;"></div>`; }
+function spellChk(){ const v=($('sg').value||'').trim().toLowerCase(); $('sgr').innerHTML=v===cur?'<span style="color:var(--success)"><i class="ti ti-check"></i> 정답!</span>':'<span style="color:var(--danger)"><i class="ti ti-x"></i> 다시 — 정답: '+cur+'</span>'; }
+
+// ===== 담기 =====
+function addWord(w){ if(findMy(w)){ toast('이미 담긴 단어예요'); return; } MY.push({w,strength:50,last:Date.now()}); persist(); updateSaveBtn(); toast('"'+w+'" 담았어요'); }
+
+// ===== 테스트 =====
+let TEST=null;
+function startTest(mode,one){ let pool;
+  if(mode==='one'){ if(!findMy(one)) addWord(one); pool=[one]; }
+  else if(mode==='due'){ pool=MY.filter(m=>strengthOf(m)<70).map(m=>m.w); }
+  else pool=MY.map(m=>m.w);
+  if(!pool.length){ toast('먼저 단어를 담아주세요'); showView('search'); return; }
+  const qs=shuffle(pool).slice(0,10).map(w=>{ const correct=MEAN[w]; const others=shuffle(ALL.filter(x=>MEAN[x]!==correct)).slice(0,3).map(x=>MEAN[x]);
+    return {w,correct,opts:shuffle([correct,...others])}; });
+  TEST={qs,i:0,score:0,results:[]}; showView('test'); renderQ(); }
+function renderQ(){ const c=$('testCard'); if(TEST.i>=TEST.qs.length) return renderResult(); const q=TEST.qs[TEST.i];
+  c.innerHTML=`<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span class="muted">${TEST.i+1} / ${TEST.qs.length}</span><span class="muted">맞힘 ${TEST.score}</span></div>
+   <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;"><b style="font-size:24px;">${q.w}</b><i class="ti ti-volume spk" style="font-size:19px;" onclick="speak('${q.w}')"></i></div>
+   <div class="muted" style="margin-bottom:10px;">뜻을 고르세요</div><div id="opts">${q.opts.map(o=>`<button class="opt" onclick="answer(this,'${encodeURIComponent(o)}')">${o}</button>`).join('')}</div>`; }
+function answer(btn,enc){ const o=decodeURIComponent(enc),q=TEST.qs[TEST.i]; document.querySelectorAll('#opts .opt').forEach(b=>b.disabled=true);
+  const ok=o===q.correct; btn.classList.add(ok?'ok':'no'); if(!ok) document.querySelectorAll('#opts .opt').forEach(b=>{ if(b.textContent===q.correct) b.classList.add('ok'); });
+  if(ok) TEST.score++; TEST.results.push({w:q.w,ok}); const m=findMy(q.w); if(m){ m.strength=ok?Math.min(100,strengthOf(m)+30):25; m.last=Date.now(); } persist();
+  const nx=document.createElement('button'); nx.className='btn-p'; nx.style.cssText='margin-top:6px; padding:10px 18px;'; nx.innerHTML=(TEST.i+1>=TEST.qs.length?'결과 보기':'다음')+' <i class="ti ti-arrow-right"></i>'; nx.onclick=()=>{ TEST.i++; renderQ(); }; $('testCard').appendChild(nx); }
+function renderResult(){ bumpStreak(); const pct=Math.round(TEST.score/TEST.qs.length*100);
+  $('testCard').innerHTML=`<div style="text-align:center;"><div style="font-size:34px; font-weight:500; color:var(--ptx);">${TEST.score} / ${TEST.qs.length}</div><div class="muted">정답률 ${pct}% · 기억 강도에 반영됨</div>
+   <div style="margin:14px 0; display:flex; flex-direction:column; gap:6px; text-align:left;">${TEST.results.map(r=>`<div style="display:flex; justify-content:space-between;"><span>${r.w} <span class="muted">${MEAN[r.w]}</span></span><span style="color:${r.ok?'var(--success)':'var(--danger)'}">${r.ok?'✓ 정답':'✗ 복습'}</span></div>`).join('')}</div>
+   <button class="btn-p" style="padding:11px 20px;" onclick="showView('my')">내 단어·진도 보기</button></div>`; }
+
+// ===== 진도 =====
+function bumpStreak(){ const today=new Date().toDateString(); if(STREAK.day!==today){ const y=new Date(Date.now()-86400000).toDateString(); STREAK.n=(STREAK.day===y)?STREAK.n+1:1; STREAK.day=today; persist(); } }
+function renderMy(){ const list=$('myList');
+  if(!MY.length){ list.innerHTML='<div class="card muted">아직 담은 단어가 없어요. 검색해서 [담기]를 눌러보세요.</div>'; return; }
+  const rows=MY.map(m=>({w:m.w,s:strengthOf(m)})).sort((a,b)=>a.s-b.s);
+  list.innerHTML='<div class="card">'+rows.map(r=>{ const col=r.s>=70?'#1D9E75':(r.s>=40?'#EF9F27':'#E24B4A'); const lab=r.s>=70?'마스터':(r.s>=40?'흐려짐':'복습!');
+    return `<div style="display:flex; align-items:center; gap:10px; padding:7px 0; border-bottom:0.5px solid var(--bt);"><span style="min-width:92px; cursor:pointer;" onclick="renderBox('${r.w}');showView('search')"><b>${r.w}</b><br><span class="muted" style="font-size:11px;">${MEAN[r.w]}</span></span><div class="bar" style="flex:1;"><div style="width:${r.s}%; background:${col};"></div></div><span style="min-width:48px; text-align:right; font-size:11px; color:${col};">${lab}</span></div>`; }).join('')+'</div>'; }
+function refreshCounts(){ const due=MY.filter(m=>strengthOf(m)<70).length, mas=MY.filter(m=>strengthOf(m)>=70).length;
+  $('navCount').textContent=MY.length;
+  ['myCount','myMaster','myDue'].forEach((id,i)=>{ const e=$(id); if(e) e.textContent=[MY.length,mas,due][i]; });
+  if($('lv')) $('lv').textContent=1+Math.floor(mas/3); if($('streak')) $('streak').textContent=STREAK.n; }
+
+// ===== 뷰 =====
+function showView(v){ ['search','my','test'].forEach(n=>$('v-'+n).classList.toggle('hide',n!==v));
+  $('nav-search').classList.toggle('on',v==='search'); $('nav-my').classList.toggle('on',v==='my');
+  if(v==='my'){ refreshCounts(); renderMy(); } }
+
+// ===== init =====
+(function(){ const h=$('hints'); ['respect','create','compete','imagine'].forEach(w=>{ const b=document.createElement('button'); b.style.cssText='font-size:12px; padding:3px 10px; border-radius:999px; margin-right:4px;'; b.textContent=w; b.onclick=()=>renderBox(w); h.appendChild(b); });
+  $('q').addEventListener('keydown',e=>{ if(e.key==='Enter') doSearch(); }); refreshCounts(); renderBox('respect'); })();
+</script>
+</body>
+</html>
