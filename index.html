@@ -96,13 +96,13 @@
           <div class="hd" style="background:var(--pbg); color:var(--ptx);">명사</div>
           <div class="hd" style="background:var(--pbg); color:var(--ptx);">형용사</div>
           <div class="hd" style="background:var(--pbg); color:var(--ptx);">부사</div>
-          <div class="hd" style="background:#FAECE7; color:#993C1D;">반의어</div>
           <div class="hd" style="background:#E1F5EE; color:#085041;">동의어</div>
+          <div class="hd" style="background:#FAECE7; color:#993C1D;">반의어</div>
         </div>
         <div class="bgrid">
           <div class="cl" id="c-v"></div><div class="cl" id="c-n"></div><div class="cl" id="c-a"></div>
-          <div class="cl" id="c-d"></div><div class="cl" id="c-ant" style="background:#FCF4F1;"></div>
-          <div class="cl" id="c-syn" style="background:#F1F9F5; border-right:none;"></div>
+          <div class="cl" id="c-d"></div><div class="cl" id="c-syn" style="background:#F1F9F5;"></div>
+          <div class="cl" id="c-ant" style="background:#FCF4F1; border-right:none;"></div>
         </div>
         <div style="display:flex; gap:8px; padding:9px 12px; border-top:0.5px solid var(--bs);">
           <span class="badge" style="background:#FAEEDA; color:#854F0B; height:fit-content;">예문</span>
@@ -113,6 +113,7 @@
       <div style="display:flex; gap:8px; justify-content:center; margin-top:10px; flex-wrap:wrap;">
         <button class="btn-p" onclick="toggleImg()"><i class="ti ti-photo"></i> 그림으로 보기</button>
         <button onclick="speak(cur)"><i class="ti ti-volume"></i> 음성으로 듣기</button>
+        <button onclick="toast('작동 예정 — 녹음해서 AI가 발음을 채점하는 따라 읽기 기능이 들어갈 자리예요')" style="color:var(--ts);"><i class="ti ti-microphone"></i> 따라 읽기 <span style="font-size:10px;">(작동 예정)</span></button>
         <button id="bSave" onclick="addWord(cur)"></button>
         <button onclick="startTest('one',cur)"><i class="ti ti-checkbox"></i> 테스트</button>
         <button onclick="toggleGames()"><i class="ti ti-device-gamepad-2"></i> 워드게임 ▸</button>
@@ -225,7 +226,7 @@ function renderBox(w,flash,fromHist){
   const d=DB[w];
   if(!d){ $('root').textContent=w; $('rootko').textContent=''; $('rootbadge').textContent='';
     ['c-v','c-n','c-a','c-d','c-ant','c-syn'].forEach(id=>$(id).innerHTML='<span style="color:var(--tt);font-size:11px;">…</span>');
-    $('ex').innerHTML='<span class="muted">아직 시드에 없는 단어예요. 실제 제품에선 AI가 박스를 생성→검수 대기.</span>';
+    $('ex').innerHTML='<span class="muted">아직 시드에 없는 단어예요. </span><button class="btn-p" style="padding:5px 11px; font-size:12px; margin-left:4px;" onclick="toast(\'준비 중 — 실제 제품에선 AI가 이 단어의 박스를 만들어 검수 대기로 보냅니다 (다음 단계)\')"><i class="ti ti-bolt"></i> AI로 지금 만들기</button>';
     $('panel').innerHTML=''; $('games').innerHTML=''; cur=w; updateSaveBtn(); updateBack(); return; }
   cur=w; $('q').value=w; $('panel').innerHTML=''; $('games').innerHTML='';
   $('root').textContent=w; $('rootko').textContent='· 어근 '+d.root+'('+d.rootKo+')';
